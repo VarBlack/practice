@@ -39,7 +39,7 @@
 						3. 接收数据或者定制模板
 			*/
 		</script>
-		<script src="Drag.js"></script>
+		<script src="tools.js"></script>
 		<script>
 			class Dialog extends Drag{
 				constructor(obj){
@@ -116,7 +116,7 @@
 		</script>
 	</head>
 
-	<body style="height: 3000px;">
+	<body>
 		<input type="button" value="登录" id="login" />
 		<!-- <div class="full-pop">
 				<div class="dialogTop">
@@ -139,7 +139,31 @@
 					okValue: 'ok'
 				}
 				
-				new Dialog(obj);
+				
+				var t = new Dialog(obj);
+				t.subscribe('down',function(){
+					console.log('鼠标按下')
+				})
+				t.subscribe('move',function(){
+					console.log('鼠标移动,限制移动范围')
+					if(t.ele.offsetLeft<=0){
+						t.ele.style.left='0';
+					}
+					if(t.ele.offsetLeft>=window.innerWidth-t.ele.offsetWidth){
+						t.ele.style.left=window.innerWidth-t.ele.offsetWidth+'px';
+					}
+					if(t.ele.offsetTop<=0){
+						t.ele.style.top='0';	
+					}
+					if(t.ele.offsetTop>=window.innerHeight-t.ele.offsetHeight){
+						t.ele.style.top=window.innerHeight-t.ele.offsetHeight+'px';
+					}
+				})
+				t.subscribe('up',fn)
+				t.unsubscribe('up',fn)
+				function fn(){
+					console.log('鼠标抬起')
+				}
 			}
 		</script>
 	</body>
