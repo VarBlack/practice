@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			.wrap{
+				width: 1600px;
+				height: 900px;
+				/*background: #000;*/
+				position: absolute;
+				left: 0;
+				top: 0;
+				bottom: 0;
+				right: 0;
+				margin: auto;
+			}
+			.box{
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				position: absolute;
+				left: 0;
+				top: 0;
+			}
+			.imgs img{
+				width: 1600px;
+				height: 900px;
+				float: left;
+			}
+			.imgs{
+				width: 200%;
+				height: 100%;
+				position: absolute;
+				left: 0;
+				top: 0;
+			}
+			
+			.navs{
+				position: absolute;
+				left: 0;
+				bottom: 30px;
+				width: 100%;
+				height: 50px;
+				text-align: center;
+				line-height: 30px;
+			}
+			.navs a{
+				display: inline-block;
+				width: 15px;
+				height: 15px;
+				vertical-align: bottom;
+				background-color: #FFFFFF;
+				transform-origin: 0 15px;
+				margin: 0 10px;
+				border-radius: 50%;
+			}
+			.navs a.active{
+				background-color: red;
+			}
+			.prev,.next{
+				position: absolute;
+				right: 0;
+				top: 50%;
+				transform: translateY(-50%);
+				width: 56px;
+				height: 108px;
+			}
+			.prev{
+				background:rgba(0,0,0,.5) url(imgs/prev.png) no-repeat center;
+				background-size: 28px 54px;
+				left: 0;
+			}
+			.next{
+				background:rgba(0,0,0,.5) url(imgs/next.png) no-repeat center;
+				background-size: 28px 54px;
+				
+			}
+			.prev:hover,.next:hover{
+				background-color: rgba(0,0,0,.8);
+			}
+		</style>
+	</head>
+	<body>
+		<section class="wrap">
+			<div class="box">
+				<div class="imgs">
+					<img src="imgs/1.jpg"/>
+					<img src="imgs/2.jpg"/>
+				</div>
+				<div class="navs">
+					
+				</div>
+			</div>
+			<a href="javascript:;" class="prev"></a>
+			<a href="javascript:;" class="next"></a>
+		</section>
+		
+		<script src="../jquery-3.2.0.js"></script>
+		<script>
+			var arr = ['imgs/1.jpg','imgs/2.jpg','imgs/3.jpg','imgs/4.jpg','imgs/5.jpg'];
+			var str = '';
+			var len = arr.length;
+			for(var i = 0;i<len;i++){
+				str+='<a href="javascript:;"></a>';
+			}
+			$('.navs').html(str);
+			
+			var btns = $('.navs a');
+			btns.eq(0).addClass('active')
+			var box = $('.imgs');
+			var imgs = box.find('img');
+			var oneImgW = imgs.width();
+			var n = 0,last = 0;
+			
+			$('.next').click(function(){
+//				if(box.is(':animated')) return;
+//				box.css('left',0);
+//				n = n < len-1? ++n : 0 ;
+//				imgs.eq(1).attr('src',arr[n]);
+//				box.animate({left:-oneImgW},500,function(){
+//					imgs.eq(0).attr('src',arr[n]);
+//				})
+				fn('next');
+			})
+			
+			$('.prev').click(function(){
+//				if(box.is(':animated')) return;
+//				box.css('left',-oneImgW);
+//				n = n > 0? --n : len-1 ;
+//				imgs.eq(0).attr('src',arr[n]);
+//				box.animate({left:0},500,function(){
+//					imgs.eq(1).attr('src',arr[n]);
+//				})
+				fn('prev');
+			})
+			
+			btns.mouseover(function(){
+				if(box.is(':animated')) return;
+				var index = $(this).index();
+				if(index > n){
+					n = index-1;
+					fn('next')
+				}
+				if(index < n){
+					n = index+1;
+					fn('prev')
+				}
+			})
+			
+			
+			function fn(dir){
+				if(box.is(':animated')) return;
+				if(dir ==='prev'){
+//					imgs.eq(1).attr('src',arr[n]);
+					box.css('left',-oneImgW);
+					n = n > 0? --n : len-1 ;
+					imgs.eq(0).attr('src',arr[n]);
+					box.animate({left:0},500,function(){
+						imgs.eq(1).attr('src',arr[n]);
+					})
+				}
+				if(dir ==='next'){
+					box.css('left',0);
+					n = n < len-1? ++n : 0 ;
+					imgs.eq(1).attr('src',arr[n]);
+					box.animate({left:-oneImgW},500,function(){
+						imgs.eq(0).attr('src',arr[n]);
+					})
+				}
+				btns.eq(last).removeClass('active')
+				btns.eq(n).addClass('active')
+				last = n;
+			}
+			
+		</script>
+	</body>
+</html>
