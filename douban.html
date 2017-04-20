@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		body{
+			margin:0;
+			font-family:"微软雅黑";
+		}
+		p,h3{
+			margin:0;
+		}
+		ul,li{
+			margin:0;
+			padding:0;
+			list-style:none;
+		}
+		input{
+			border:0;
+			outline:none;
+		}
+		.clearFix:after{
+			display: block;
+			content:"";
+			clear:both;
+		}
+		.warp{
+			width: 420px;
+			margin:50px auto;
+			padding:120px 90px;
+			background: #fdb8a7;
+			background:linear-gradient(#fdb8a7,#fdd3bc);
+		}
+		.main{
+			width: 420px;
+			margin:0 auto;
+			background-color:#fff;
+			border-radius:8px;
+			overflow: hidden;
+		}
+		.header{
+			padding:73px 29px 22px;
+			margin-bottom:2px;
+			background: url(images/ajax_header.png) no-repeat;
+		}
+		.header form{
+			width: 360px;
+			height: 34px;
+			border:1px solid #fdbaa8;
+		}
+		.searchIpt{
+			float: left;
+			width:250px;
+			padding-left:10px;
+			height: 32px;
+			line-height: 32px;
+		}
+		.btnIpt{
+			float: left;
+			width: 100px;
+			height: 34px;
+			background-color:#fa805f;
+			color:#fff;
+			cursor:pointer;
+		}
+		.searchList>p{
+			padding-left: 30px;
+			font-size: 14px;
+			line-height: 44px;
+			color:#333;
+		}
+		.searchList>p span{
+			color:#fa805f;
+			padding:0 2px;
+		}
+		.searchList li{
+			border-top:1px solid #fedfd6;
+			padding:18px 27px 27px;
+		}
+		.searchList li h3{
+			font-weight: normal;
+			line-height: 41px;
+			color:#fa805f;
+		}
+		.searchList .listMian a{
+			float: left;
+		}
+		.searchList .listMian div{
+			float: left;
+			padding-left: 16px;
+			width: 224px;
+		}
+		.searchList .listMian p{
+			font-size: 12px;
+			color:#666;
+			line-height: 26px;
+		}
+		.searchList .listMian .smallT{
+			font-size: 14px;
+			color:#333;
+			line-height: 30px;
+		}
+
+		.pagination {
+			padding: 5px;
+			text-align: center;
+		}
+		.pagination a, .pagination span {
+			margin: 5px;
+			text-decoration: none;
+			cursor: pointer;
+			color: #333;
+		}
+		.pagination a:hover, .pagination span:hover {
+			color: #fa805f;
+		}
+		.pagination strong {
+			margin: 5px;
+			color: #fa805f;
+		}
+	</style>
+</head>
+<body>
+	<section class="warp">
+		<section class="main">
+			<header class="header">
+				<form action="">
+					<input type="text" class="searchIpt" placeholder="请输入要搜索的关键字">
+					<input type="button" value="搜索相关书籍" class="btnIpt">
+				</form>
+			</header>
+			<section class="searchList">
+				<p style="display: none;">正在搜索中……，请稍后！</p>
+				<p class="info"></p>
+				<ul id="list">
+					<!--<li>
+						<h3>JavaScript权威指南</h3>
+						<div class="listMian clearFix">
+							<a href="">
+								<img src="images/ajax_pic.png" alt="">
+							</a>
+							
+							<div >
+								<p class="smallT">弗拉纳根/机械工业出版社/2007-8</p>
+								<p>《JavasCript权威指南（第五片）》全面介绍了JavasCript语言的核心，以及Web浏览器中实现的遗留和标准的DOM...</p>
+							</div>
+							
+						</div>
+					</li>-->
+				</ul>
+				<div class="pagination">
+					<!--<span>首页</span>
+					<span>上一页</span>
+					<a href="javascript:;">1</a>
+					<strong>2</strong>
+					<a href="javascript:;">3</a>
+					<span>下一页</span>
+					<span>尾页</span>-->
+				</div>
+			</section>
+		</section>
+		
+	</section>
+	<script src="../js/jquery-3.2.0.js"></script>
+	<script>
+		var val = '';
+		var count = 3;
+		var maxPage = 0;
+		var page = 1;
+		var pages = 5;
+		var n = Math.floor(pages/2)
+		var pagination = $('.pagination');
+		
+		console.log(n)
+		
+		
+		$('.btnIpt').on('click',function(){
+			page = 1;
+			$('.searchList p').eq(0).css('display','block');
+			val = $('.searchIpt').val().trim();
+			if(!val.length){
+				alert('请输入要查找的书籍')
+				return;
+			}
+			search()
+		})
+		
+		function search(){
+			var start = (page - 1) * count;
+			var script = $('<script><\/script>')
+			script.attr('src','https://api.douban.com/v2/book/search?q=' + val +'&start='+ start + '&count=' +count+'&callback=resultsHandler')
+			$('body').append(script)
+		}
+		
+		function resultsHandler(data){
+			$('.searchList p').eq(0).css('display','none')
+			total = data.total;
+			if(total == 0){
+				$('.info').html('没有搜索到书籍')
+			}else{
+				maxPage = Math.ceil(total/count)
+				$('.info').html('共搜索到<span>'+total+'</span>条，共<span>'+pages+'</span>页，当前第<span>'+page+'</span>页');
+				
+				var html = '';
+				
+				html = data.books.map(function(item,i){
+					var summary = item.summary.length > 50 ? item.summary.substring(0, 50) + '...' : item.summary;
+					
+					return `<li>
+						<h3>${item.title}</h3>
+						<div class="listMian clearFix">
+							<a href="https://book.douban.com/subject/${item.id}/">
+								<img src=${item.images.small} alt="">
+							</a>
+							<div >
+								<p class="smallT">${item.author[0]}/${item.publisher}/${item.pubdate}</p>
+								<p>${summary}</p>
+							</div>
+							
+						</div>
+					</li>`
+				})
+				
+				$('#list').html(html)
+				fn()
+			}
+		}
+		
+		
+		function fn(){
+			pagination.html('')
+			
+			var first = $('<span>首页</span>');
+			first.on('click',function(){
+				page = 1;
+				search()
+			})
+			pagination.append(first);
+			
+			
+			
+			var prev = $('<span>上一页</span>')
+			prev.on('click',function(){
+				page = Math.max(--page,1);
+				search()
+			})
+			pagination.append(prev)
+			
+			
+			
+			var n = fn1()
+			
+			for(var i = n.star; i <= n.end; i++){
+				console.log(i,page)
+				if(i===page){
+					var strong = $('<strong>'+i+'</strong>')
+					pagination.append(strong)
+				}else{
+					var a = $('<a>'+i+'</a>')
+					pagination.append(a)
+				}
+			}
+			
+			var next = $('<span>下一页</span>')
+			next.on('click',function(){
+				page = Math.min(++page,maxPage);
+				search()
+			})
+			pagination.append(next)
+			
+			var last = $('<span>尾页</span>');
+			last.on('click',function(){
+				page = maxPage;
+				search()
+			})
+			pagination.append(last)
+		}
+		
+		pagination.on('click','a',function(){
+			page = $(this).text().trim()*1;
+			search()
+		})
+		
+		function fn1(){
+			var star = 0;
+			var end = 0;
+			
+			star = page-n > 1 ? page-n : 1;
+			end = star + pages - 1 > maxPage ? maxPage: star + pages - 1;
+
+			
+			star = end - pages + 1 > 1 ? end - pages + 1 : 1;
+			return {
+				star : star,
+				end : end
+			}
+		}
+		
+	</script>
+</body>
+</html>
