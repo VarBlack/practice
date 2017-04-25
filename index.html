@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>todos</title>
+    <!--<link rel="stylesheet" type="text/css" href="css/base.css">-->
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+</head>
+
+<body>
+    <section class="todoapp">
+        <div>
+            <header class="header" >
+                <h1>todos</h1>
+                <input class="new-todo" placeholder="请输入内容" value="">
+            </header>
+            <section class="main">
+                <input class="toggle-all" type="checkbox">
+                <ul class="todo-list">
+                    <!--<li class="completed">
+                        <div class="view">
+                            <input class="toggle" type="checkbox" checked="">
+                            <label>多多对对对</label>
+                            <button class="destroy"></button>
+                        </div>
+                        <input class="edit" value="多多对对对">
+                    </li>-->
+                </ul>
+            </section>
+            <footer class="footer">
+	            <span class="todo-count">
+	            	<strong>0</strong>
+	            	<span>条未选中</span>
+	            </span>
+            </footer>
+        </div>
+    </section>
+    
+    <script src="jquery-3.2.0.js"></script>
+    <script type="text/javascript">
+    	
+    	var store = {
+				fetch(key){  //获取
+					var data = localStorage.getItem(key);
+
+					return !data ? [] : JSON.parse(data);
+				},
+				save(key,value){  //存值
+					localStorage.setItem(key, JSON.stringify(value))
+				}
+			}
+    	
+    	
+    	
+    	
+    	
+    	
+    	
+    	var list = store.fetch('list');
+    	
+    	var strong = $('strong');
+    	var text = $('.new-todo');
+    	
+    	for(var i = 0;i<list.length;i++){
+    		html(list[i])
+//  		var li = $(`<li>
+//					<div class="view">
+//                      <input class="toggle" type="checkbox">
+//                      <label>${list[i]}</label>
+//                      <button class="destroy"></button>
+//                  </div>
+//                  <input class="edit" value="${list[i]}">
+//              </li>`)
+//			$('.todo-list').append(li)
+//			num()
+    	}
+    	
+    	
+//  	var arr = list;
+    	text.blur(function(){
+    		var val = text.val().trim();
+    		if(val.length){
+    			html(val)
+	    		$(this).val('')
+	    		list.push(val)
+	    		store.save("list",list)
+    		}else{
+    			alert('请输入内容')
+    		}
+    		
+    		
+    	})
+    	function html(item){
+    		var li = $(`<li>
+					<div class="view">
+                        <input class="toggle" type="checkbox">
+                        <label>${item}</label>
+                        <button class="destroy"></button>
+                    </div>
+                    <input class="edit" value="${item}">
+                </li>`)
+			$('.todo-list').append(li)
+			num()
+    	}
+    	
+    	function num(){
+    		var n = $('.todo-list li').length;
+    		$('.todo-list li').each(function(i,item){
+//  			console.log(item)
+    			if(item.classList.contains('completed')){
+    				n--;
+    			}
+    		})
+    		strong.html(n)
+    		if(n == 0){
+    			$('.toggle-all').attr("checked", true); 
+    		}else{
+    			$('.toggle-all').attr("checked", false); 
+    		}
+    	}
+    	//点击删除
+    	$('.todo-list').on('click','li .destroy',function(){
+    		var li = $(this).parent().parent()
+    		var index = li.index()
+    		list.splice(index,1)
+    		store.save("list",list)
+	    	li.remove()
+	    	num()
+	    })
+    	//点击选中
+    	$('.todo-list').on('click','li .toggle',function(){
+	    	this.checked ? $(this).parent().parent().addClass('completed'):$(this).parent().parent().removeClass('completed')
+	    	num()
+	    })
+    	
+    	//点击全选
+    	$('.toggle-all').on('click',function(){
+    		if(this.checked){
+    			$('.todo-list .toggle').attr("checked", true); 
+    			$('.todo-list li').addClass('completed');
+    		}else{
+    			$('.todo-list .toggle').attr("checked", false); 
+    			$('.todo-list li').removeClass('completed');
+    		}
+    		num()
+    	})
+    	
+    	//点击编辑
+    	$('.todo-list').on('click','li label',function(){
+    		var span = $(this)
+    		span.css('display','none')
+    		var input = span.parent().next();
+    		input.css('display','block');
+    		input.on('blur',function(){
+    			span.html($(this).val())
+    			$(this).css('display','none')
+    			span.css('display','block')
+    			var li = $(this).parent();
+    			var index = li.index()
+    			list[index] = $(this).val();
+    			store.save("list",list)
+    			
+    		});
+    		$(window).keydown(function(e){
+	    		var key = e.keyCode;
+	    		if(key === 27){
+	    			input.val(span.html())
+	    			input.blur()
+	    		}
+	    	})
+	    })
+    	
+    	$(window).keydown(function(e){
+    		var key = e.keyCode;
+    		if(key === 13 && $('.new-todo').val().length){
+    			$('.new-todo').blur()
+    		}
+    	})
+    </script>
+    
+</body>
+
+</html>
